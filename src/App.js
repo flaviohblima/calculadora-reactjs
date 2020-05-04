@@ -1,11 +1,16 @@
 import React from "react";
 import "./styles.css";
+import { ThemeProvider } from "styled-components";
+import { GlobalStyles, darkTheme } from "./Styles";
+import { Calculator } from "./Calculator";
 
 export default function App() {
   return (
-    <div className="App">
-      <h1>Hello CodeSandbox</h1>
-      <h2>Start editing to see some magic happen!</h2>
-    </div>
+    <ThemeProvider theme={darkTheme}>
+      <GlobalStyles />
+      <div className="App">
+        <Calculator />
+      </div>
+    </ThemeProvider>
   );
 }
