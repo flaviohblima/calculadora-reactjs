@@ -1,65 +1,209 @@
 import React, { useState } from "react";
 import { Visor } from "../Visor";
 import { Keyboard } from "../Keyboard";
-import { Header } from "../NavigationTabs";
-import styled, { css } from "styled-components";
-//import { CALC_BUTTONS } from "./";
-import { CALC_BUTTONS } from "../Operations";
+
+export const CALC_BUTTONS = [
+  { symbol: "⌫", variant: "secondary" },
+  { symbol: "±", variant: "secondary" },
+  { symbol: "%", variant: "secondary" },
+  { symbol: "÷", variant: "secondary" },
+  { symbol: "7" },
+  { symbol: "8" },
+  { symbol: "9" },
+  { symbol: "×", variant: "secondary" },
+  { symbol: "4" },
+  { symbol: "5" },
+  { symbol: "6" },
+  { symbol: "−", variant: "secondary" },
+  { symbol: "1" },
+  { symbol: "2" },
+  { symbol: "3" },
+  { symbol: "+", variant: "secondary" },
+  { symbol: "C", variant: "secondary" },
+  { symbol: "0" },
+  { symbol: ".", operation: "." },
+  { symbol: "=", variant: "primary" }
+];
+
+const OPERATORS = ["%", "÷", "×", "−", "+"];
+
+const NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 export function Calculator() {
-  const initialState = {
-    // acc: 0,
-    // expStack: [0],
-    // previousExpression: {
-    //   expression: "",
-    //   result: ""
-    // },
-    historyStack: [],
-    lastExpression: "",
-    expression: "",
-    operation: "0",
-    evaluated: true,
-    tab: "calc"
-  };
-  const [visorState, setVisorState] = useState(initialState);
+  const [expression, setExpression] = useState("");
+  const [accumulator, setAccumulator] = useState("0");
+  const [expressionsHistory, setExpressionsHistory] = useState([]);
+  const [evaluated, setEvaluated] = useState(true);
 
-  const handleButtonPress = button =>
-    setVisorState(
-      button.opFunction ? button.opFunction(visorState) : visorState
-    );
+  const buttons = CALC_BUTTONS;
 
-  const handleTabSelection = e => {
-    if (visorState.tab !== e.target.id) {
-      setVisorState({ ...visorState, tab: e.target.id });
+  const handleButtonPress = ({ symbol }) => {
+    if (isNumber(symbol)) {
+      handleNumber(symbol);
+    } else if (isOperator(symbol)) {
+      handleOperator(symbol);
+    } else {
+      executesUniqueFunction(symbol);
     }
   };
 
+  const isOperator = symbol => {
+    return OPERATORS.includes(symbol);
+  };
+
+  const isNumber = symbol => {
+    return NUMBERS.includes(symbol);
+  };
+
+  const handleNumber = num => {
+    if (needReplaceAcumulator()) {
+      setAccumulator(num);
+      setEvaluated(false);
+    } else if (lastSymbolWasOperator()) {
+      const newExpression = moveAccToExpression();
+      setExpression(newExpression);
+      setAccumulator(num);
+    } else {
+      const newAcc = accumulator + num;
+      setAccumulator(newAcc);
+    }
+  };
+
+  const needReplaceAcumulator = () => {
+    return !accumulator || accumulator === "0" || evaluated;
+  };
+
+  const lastSymbolWasOperator = () => {
+    let wasLastSymbolOperator = false;
+    OPERATORS.forEach(operator => {
+      if (accumulator && accumulator.endsWith(operator)) {
+        wasLastSymbolOperator = true;
+      }
+    });
+    return wasLastSymbolOperator;
+  };
+
+  const handleOperator = operator => {
+    if (!accumulator) {
+      return;
+    }
+    if (lastSymbolWasOperator()) {
+      replaceLastOperator(operator);
+    } else {
+      const newAcc = `${accumulator} ${operator}`;
+      setAccumulator(newAcc);
+    }
+  };
+
+  const replaceLastOperator = newOperator => {
+    const newAcc = `${accWithoutLastChar()}${newOperator}`;
+    setAccumulator(newAcc);
+    return;
+  };
+
+  const accWithoutLastChar = () => {
+    return accumulator.slice(0, -1);
+  };
+
+  const executesUniqueFunction = symbol => {
+    switch (symbol) {
+      case "C":
+        clearVisor();
+        break;
+      case "⌫":
+        backspace();
+        break;
+      case "±":
+        changeSignal();
+        break;
+      case ".":
+        decimalMode();
+        break;
+      case "=":
+        evaluateExpression();
+        break;
+      default:
+        return;
+    }
+  };
+
+  const clearVisor = () => {
+    setEvaluated(true);
+    setExpression("");
+    setAccumulator("0");
+  };
+
+  const backspace = () => {
+    if (!accumulator || accumulator.length === 1) {
+      setAccumulator("0");
+    } else if (lastSymbolWasOperator()) {
+      // Remove space
+      const newAcc = accumulator.slice(0, -2);
+      setAccumulator(newAcc);
+    } else {
+      const newAcc = accumulator.slice(0, -1);
+      setAccumulator(newAcc);
+    }
+  };
+
+  const changeSignal = () => {
+    const newAcc = `${currentNumber() * -1}`;
+    setAccumulator(newAcc);
+  };
+
+  const currentNumber = () => {
+    if (lastSymbolWasOperator()) {
+      return Number(accWithoutLastChar());
+    } else {
+      return accumulator;
+    }
+  };
+
+  const decimalMode = () => {
+    if (lastSymbolWasOperator()) {
+      moveAccToExpression();
+      setAccumulator("0.");
+    } else if (!accumulator.includes(".")) {
+      setAccumulator(accumulator + ".");
+    }
+  };
+
+  const evaluateExpression = () => {
+    const finalExpression = evaluated ? expression : moveAccToExpression();
+    const expressionToEvaluate = replaceOperators(finalExpression);
+
+    console.log(expressionToEvaluate);
+    const result = eval(expressionToEvaluate || accumulator);
+
+    setExpressionsHistory([
+      ...expressionsHistory,
+      { expression: finalExpression, result }
+    ]);
+    setEvaluated(true);
+    setExpression("");
+    setAccumulator(`${result}`);
+  };
+
+  const moveAccToExpression = () => {
+    return expression + ` ${accumulator}`;
+  };
+
+  const replaceOperators = expression => {
+    return expression
+      .replace("−", "-")
+      .replace("×", "*")
+      .replace("÷", "/")
+      .replace("%", "/100 *");
+  };
+
   return (
-    <Container>
-      <Header visorState={visorState} handleTabSelection={handleTabSelection} />
-      <Visor {...visorState} />
-      <Keyboard
-        handleButtonPress={handleButtonPress}
-        calcButtons={CALC_BUTTONS}
+    <>
+      <Visor
+        accumulator={accumulator}
+        expression={expression}
+        expressionsHistory={expressionsHistory}
       />
-    </Container>
+      <Keyboard handleButtonPress={handleButtonPress} calcButtons={buttons} />
+    </>
   );
 }
-
-const Container = styled.div`
-  text-align: center;
-  width: fit-content;
-  padding: 2rem;
-
-  border-radius: 1rem;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.6),
-    0 0 1rem rgba(0, 0, 0, 0.5);
-  display: inline-block;
-  ${() => calcBackgroundCss};
-`;
-
-const calcBackgroundCss = css`
-  --color1: ${({ theme }) => theme.calcBackground2};
-  --color2: ${({ theme }) => theme.calcBackground};
-  background: linear-gradient(160deg, var(--color1), var(--color2) 35%);
-`;

@@ -1,25 +1,26 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { BUTTON_SIZE } from "../Styles";
 
-export const Header = ({ visorState, handleTabSelection }) => {
-  console.log(visorState.tab);
+export const Header = ({ tabs, activeTabIndex, setTabIndex }) => {
+  const numOfTabs = tabs ? tabs.length : 0;
+
   return (
     <Container>
-      <Tab
-        id="calc"
-        active={visorState.tab === "calc"}
-        onClick={e => handleTabSelection(e)}
-      >
-        Calculator
-      </Tab>
-      <Tab
-        id="hist"
-        active={visorState.tab === "hist"}
-        onClick={e => handleTabSelection(e)}
-      >
-        History
-      </Tab>
+      {tabs &&
+        tabs.map((tab, index) => (
+          <Tab
+            key={index}
+            isActive={index === activeTabIndex}
+            onClick={() => setTabIndex(index)}
+          >
+            {tab}
+          </Tab>
+        ))}
+      <ActiveTabIndicator
+        activeTabIndex={activeTabIndex}
+        numOfTabs={numOfTabs}
+      />
     </Container>
   );
 };
@@ -33,6 +34,11 @@ const Container = styled.div`
   justify-content: center;
   border-bottom: ${({ theme }) => `1px solid ${theme.borderColor}`};
   padding: 0;
+  position: relative;
+`;
+
+const transitionCss = css`
+  transition: ease all 0.3s;
 `;
 
 const Tab = styled.div`
@@ -43,15 +49,28 @@ const Tab = styled.div`
   align-items: flex-end;
   padding: 0.3rem;
   justify-content: center;
-  border-bottom: ${props => getBorder(props)};
   color: ${props => getColor(props)};
   cursor: pointer;
+  ${transitionCss}
 `;
 
-const getBorder = ({ theme, active }) => {
-  return active ? `2px solid ${theme.primary}}` : ``;
+const ActiveTabIndicator = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: ${props => getLeftOffset(props)};
+  width: ${props => getTabWidth(props)};
+  height: 2px;
+  background-color: ${({ theme }) => theme.primary};
+  ${transitionCss}
+`;
+
+const getColor = ({ theme, isActive }) => {
+  return isActive ? `${theme.primary}` : ``;
 };
 
-const getColor = ({ theme, active }) => {
-  return active ? `${theme.primary}` : ``;
+const getLeftOffset = ({ activeTabIndex, numOfTabs }) => {
+  const offsetPercentage = (activeTabIndex * 100) / numOfTabs;
+  return `${offsetPercentage}%`;
 };
+
+const getTabWidth = ({ numOfTabs }) => `${100 / numOfTabs}%`;
