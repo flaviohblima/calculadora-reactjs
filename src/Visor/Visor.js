@@ -1,32 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import { calcKeyboardWidth } from "../Keyboard";
-//import { formatStack } from "../Calculator";
+import { keyboardWidth } from "../Keyboard";
 import { BUTTON_PADDING, BUTTON_SIZE } from "../Styles";
+import { LastExpression } from "./LastExpression";
 
-export function Visor({ expression, historyStack, operation }) {
-  //const expression = formatStack(expStack);
-  const lastExpression = historyStack[historyStack.length - 1];
+export function Visor({ accumulator, expression, expressionsHistory }) {
   return (
     <Container>
       <VisorWrapper>
-        {/* <PreviousExpression>
-          <span>{previousExpression && previousExpression.expression}</span>
-          <span className="result">
-            {previousExpression && previousExpression.result}
-          </span>
-        </PreviousExpression> */}
-        <LastExpression>
-          {lastExpression
-            ? lastExpression.expression + " = " + lastExpression.result
-            : ""}
-        </LastExpression>
+        <LastExpression expressionsHistory={expressionsHistory} />
 
         <OperationWrapper>
           <Expression>{expression}</Expression>
           {/* FIX: Não consegui colocar um auto scroll nos números */}
           <Number>
-            <NumberSpan>{operation}</NumberSpan>
+            <NumberSpan>{accumulator}</NumberSpan>
           </Number>
         </OperationWrapper>
       </VisorWrapper>
@@ -38,37 +26,21 @@ const Container = styled.div`
   display: flex;
   position: relative;
   width: 100%;
-  height: ${3 * BUTTON_SIZE}rem;
+  height: ${visorHeight()}rem;
   justify-content: center;
-  margin-bottom: ${4 * BUTTON_PADDING}rem;
+  margin-bottom: ${visorMargin()}rem;
 `;
 
 const VisorWrapper = styled.div`
-  width: ${calcVisorWidth}rem;
+  width: ${visorWidth}rem;
   text-align: right;
   font-family: ${({ theme }) => theme.fontFamily};
   border-bottom: ${({ theme }) => `2px solid ${theme.borderColor}`};
 `;
 
-// const PreviousExpression = styled.div`
-//   margin-bottom: 3rem;
-//   color: ${({ theme }) => theme.secondary};
-//   .result {
-//     font-weight: 600;
-//   }
-// `;
-
-/**
- * Styled div para apresentar a última conta que foi feita na calculadora.
- */
-const LastExpression = styled.div`
-  height: ${BUTTON_SIZE}rem;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
 const OperationWrapper = styled.div`
   height: ${2 * BUTTON_SIZE}rem;
-  width: ${calcVisorWidth}rem;
+  width: ${visorWidth}rem;
   font-family: ${({ theme }) => theme.fontFamily};
   display: flex;
   flex-direction: column;
@@ -100,6 +72,14 @@ const NumberSpan = styled.span`
   float: right;
 `;
 
-function calcVisorWidth() {
-  return calcKeyboardWidth() - 2 * BUTTON_PADDING;
+function visorWidth() {
+  return keyboardWidth() - 2 * BUTTON_PADDING;
+}
+
+function visorMargin() {
+  return 4 * BUTTON_PADDING;
+}
+
+export function visorHeight() {
+  return 3 * BUTTON_SIZE + visorMargin();
 }

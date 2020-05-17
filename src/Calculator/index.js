@@ -1,2 +1,2 @@
 export { Calculator } from "./Calculator";
-export * from "./CalculatorConfig";
+export { CalcContainer } from "./CalcContainer";
