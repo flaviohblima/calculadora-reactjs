@@ -1,11 +1,22 @@
-import React from "react";
-import { Visor } from "../Visor";
-import { Keyboard } from "../Keyboard";
-import { CALC_BUTTONS } from "./calcConfig";
-import { Context } from "../App";
+import { useState } from "react";
+import { OPERATORS, NUMBERS } from "./calcConfig";
 
-export function Calculator() {
-  const buttons = CALC_BUTTONS;
+// Hook customizado que implementa a lógica da calculadora
+export function useCalcProcessor() {
+  const [expression, setExpression] = useState("");
+  const [accumulator, setAccumulator] = useState("0");
+  const [expressionsHistory, setExpressionsHistory] = useState([]);
+  const [evaluated, setEvaluated] = useState(true);
+
+  const handleButtonPress = ({ symbol }) => {
+    if (isNumber(symbol)) {
+      handleNumber(symbol);
+    } else if (isOperator(symbol)) {
+      handleOperator(symbol);
+    } else {
+      executesUniqueFunction(symbol);
+    }
+  };
 
   const isOperator = (symbol) => {
     return OPERATORS.includes(symbol);
@@ -16,9 +27,9 @@ export function Calculator() {
   };
 
   const handleNumber = (num) => {
+    setEvaluated(false);
     if (needReplaceAcumulator()) {
       setAccumulator(num);
-      setEvaluated(false);
     } else if (lastSymbolWasOperator()) {
       const newExpression = moveAccToExpression();
       setExpression(newExpression);
@@ -30,7 +41,7 @@ export function Calculator() {
   };
 
   const needReplaceAcumulator = () => {
-    return !accumulator || accumulator === "0" || evaluated;
+    return !accumulator || accumulator === "0";
   };
 
   const lastSymbolWasOperator = () => {
@@ -124,20 +135,20 @@ export function Calculator() {
       moveAccToExpression();
       setAccumulator("0.");
     } else if (!accumulator.includes(".")) {
-      setAccumulator(accumulator + ".");
+      setAccumulator(`${accumulator}.`);
     }
   };
 
   const evaluateExpression = () => {
+    if (evaluated) return;
     const finalExpression = evaluated ? expression : moveAccToExpression();
     const expressionToEvaluate = replaceOperators(finalExpression);
 
-    console.log(expressionToEvaluate);
-    const result = eval(expressionToEvaluate || accumulator);
-
+    let result = eval(expressionToEvaluate || accumulator);
+    result = Number(result.toPrecision(8));
     setExpressionsHistory([
       ...expressionsHistory,
-      { expression: finalExpression, result },
+      { expression: finalExpression, result: `${result}` },
     ]);
     setEvaluated(true);
     setExpression("");
@@ -145,7 +156,7 @@ export function Calculator() {
   };
 
   const moveAccToExpression = () => {
-    return expression + ` ${accumulator}`;
+    return `${expression} ${accumulator}`;
   };
 
   const replaceOperators = (expression) => {
@@ -156,21 +167,12 @@ export function Calculator() {
       .replace("%", "/100 *");
   };
 
-  return (
-    <Context.Consumer>
-      {({ accumulator, expression, expressionsHistory, handleButtonPress }) => (
-        <>
-          <Visor
-            accumulator={accumulator}
-            expression={expression}
-            expressionsHistory={expressionsHistory}
-          />
-          <Keyboard
-            handleButtonPress={handleButtonPress}
-            calcButtons={buttons}
-          />
-        </>
-      )}
-    </Context.Consumer>
-  );
+  const calcState = {
+    accumulator,
+    expression,
+    expressionsHistory,
+    handleButtonPress,
+  };
+
+  return calcState;
 }

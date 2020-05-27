@@ -11,8 +11,8 @@ export const TabsWithTransitions = ({ tabs, activeTabIndex }) => {
       <TabsTransitionsContainer>
         <TransitionGroup component={null}>
           {tabs &&
-            tabs.map(
-              (tab, index) =>
+            tabs.map((tab, index) => {
+              return (
                 activeTabIndex === index && (
                   <CSSTransition
                     key={index}
@@ -22,7 +22,8 @@ export const TabsWithTransitions = ({ tabs, activeTabIndex }) => {
                     <div className={`tab tab-${index}`}>{tab.component}</div>
                   </CSSTransition>
                 )
-            )}
+              );
+            })}
         </TransitionGroup>
       </TabsTransitionsContainer>
     </>
@@ -37,6 +38,8 @@ const TabsTransitionsContainer = styled.div`
   .tab {
     position: absolute;
     left: 0;
+    width: 100%;
+    height: 100%;
   }
   .tab-enter {
     opacity: 0;

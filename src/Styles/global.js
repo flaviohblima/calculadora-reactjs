@@ -7,15 +7,10 @@ export const GlobalStyles = createGlobalStyle`
     font-family: 'Montserrat', sans-serif;
     transition: all 0.25s linear;
     text-align: center;
-    .App {
-      display: flex;
-      align-items: center;
-      justify-content:center;
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      bottom: 0;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
   }
   `;
