@@ -25,7 +25,6 @@ export default function App() {
     },
   ];
   const appContext = useCalcProcessor();
-  console.log("nao nao nao nao... de boa, de boa....");
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyles />
