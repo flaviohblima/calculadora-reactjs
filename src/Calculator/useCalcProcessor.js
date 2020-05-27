@@ -18,15 +18,15 @@ export function useCalcProcessor() {
     }
   };
 
-  const isOperator = symbol => {
+  const isOperator = (symbol) => {
     return OPERATORS.includes(symbol);
   };
 
-  const isNumber = symbol => {
+  const isNumber = (symbol) => {
     return NUMBERS.includes(symbol);
   };
 
-  const handleNumber = num => {
+  const handleNumber = (num) => {
     setEvaluated(false);
     if (needReplaceAcumulator()) {
       setAccumulator(num);
@@ -41,12 +41,12 @@ export function useCalcProcessor() {
   };
 
   const needReplaceAcumulator = () => {
-    return !accumulator || accumulator === "0" || evaluated;
+    return !accumulator || accumulator === "0";
   };
 
   const lastSymbolWasOperator = () => {
     let wasLastSymbolOperator = false;
-    OPERATORS.forEach(operator => {
+    OPERATORS.forEach((operator) => {
       if (accumulator && accumulator.endsWith(operator)) {
         wasLastSymbolOperator = true;
       }
@@ -54,7 +54,7 @@ export function useCalcProcessor() {
     return wasLastSymbolOperator;
   };
 
-  const handleOperator = operator => {
+  const handleOperator = (operator) => {
     if (!accumulator) {
       return;
     }
@@ -66,7 +66,7 @@ export function useCalcProcessor() {
     }
   };
 
-  const replaceLastOperator = newOperator => {
+  const replaceLastOperator = (newOperator) => {
     const newAcc = `${accWithoutLastChar()}${newOperator}`;
     setAccumulator(newAcc);
     return;
@@ -76,7 +76,7 @@ export function useCalcProcessor() {
     return accumulator.slice(0, -1);
   };
 
-  const executesUniqueFunction = symbol => {
+  const executesUniqueFunction = (symbol) => {
     switch (symbol) {
       case "C":
         clearVisor();
@@ -148,7 +148,7 @@ export function useCalcProcessor() {
     result = Number(result.toPrecision(8));
     setExpressionsHistory([
       ...expressionsHistory,
-      { expression: finalExpression, result: `${result}` }
+      { expression: finalExpression, result: `${result}` },
     ]);
     setEvaluated(true);
     setExpression("");
@@ -159,7 +159,7 @@ export function useCalcProcessor() {
     return `${expression} ${accumulator}`;
   };
 
-  const replaceOperators = expression => {
+  const replaceOperators = (expression) => {
     return expression
       .replace("−", "-")
       .replace("×", "*")
@@ -171,7 +171,7 @@ export function useCalcProcessor() {
     accumulator,
     expression,
     expressionsHistory,
-    handleButtonPress
+    handleButtonPress,
   };
 
   return calcState;

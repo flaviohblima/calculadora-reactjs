@@ -10,29 +10,27 @@ export const Context = React.createContext({
   accumulator: "",
   expression: "",
   expressionsHistory: [],
-  handleButtonPress: () => {}
+  handleButtonPress: () => {},
 });
 
 export default function App() {
   const tabs = [
     {
       title: "Calculator",
-      component: <Calculator />
+      component: <Calculator />,
     },
     {
       title: "History",
-      component: <History />
-    }
+      component: <History />,
+    },
   ];
   const appContext = useCalcProcessor();
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyles />
-      <div className="App">
-        <Context.Provider value={appContext}>
-          <NavigationTabs tabs={tabs} />
-        </Context.Provider>
-      </div>
+      <Context.Provider value={appContext}>
+        <NavigationTabs tabs={tabs} />
+      </Context.Provider>
     </ThemeProvider>
   );
 }
