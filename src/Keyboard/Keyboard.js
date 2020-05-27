@@ -1,4 +1,4 @@
-import { ButtonWrapper } from "../Button";
+import { ButtonWrapper } from "./Button";
 import React from "react";
 import styled from "styled-components";
 import {
@@ -38,7 +38,7 @@ const KeyboardContainer = styled.div`
 const CalcKeyboard = styled.div`
   display: flex;
   justify-content: flex-start;
-  width: ${() => calcKeyboardWidth()}rem;
+  width: ${() => keyboardWidth()}rem;
   flex-wrap: wrap;
 `;
 
@@ -51,8 +51,13 @@ const keyboardInputEventHandler = event => {
   }
 };
 
-export function calcKeyboardWidth() {
-  const buttonWidth =
-    BUTTON_SIZE + 2 * BUTTON_PADDING + 2 * BUTTON_BORDER_WIDTH;
-  return `${BUTTONS_PER_LINE * buttonWidth}`;
+export const BUTTON_DIMENSIONS =
+  BUTTON_SIZE + 2 * BUTTON_PADDING + 2 * BUTTON_BORDER_WIDTH;
+
+export function keyboardWidth() {
+  return `${BUTTONS_PER_LINE * BUTTON_DIMENSIONS}`;
+}
+
+export function keyboardHeight() {
+  return 5 * BUTTON_DIMENSIONS;
 }

@@ -10,7 +10,8 @@ export const Button = styled.div`
 
 const declareCssVariables = css`
   --size: ${({ size }) => `${size}rem`};
-  --font-size: calc(var(--size) * 2.75 / 5);
+  --font-size: ${({ symbol }) =>
+    symbol === "⌫" ? "1rem" : "calc(var(--size) * 2.75 / 5)"};
   --font-family: ${({ theme }) => theme.fontFamily};
   --background-color: ${props => getBackgroundColor(props)};
   --border-width: ${props => getBorderWidth(props)};
